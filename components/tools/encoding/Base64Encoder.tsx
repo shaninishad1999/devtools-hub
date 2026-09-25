@@ -212,7 +212,7 @@ export default function Base64Encoder({
           Action Row
       ========================== */}
 
-      <div className="mt-4 flex items-center gap-3">
+      <div className="mb-5 flex items-center justify-between gap-4 overflow-x-auto">
 
         {/* Encode */}
 
