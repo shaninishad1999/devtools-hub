@@ -1,435 +1,870 @@
 "use client";
 
-import { ChangeEvent, useRef, useState } from "react";
 import {
-    testRegex,
-    RegexMatch,
+  ChangeEvent,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+
+import {
+  testRegex,
+  RegexTestResult,
 } from "@/lib/regex/regexTester";
 
 interface RegexTesterProps {
-    theme: "light" | "dark";
-    onToggleTheme: () => void;
+  theme: "light" | "dark";
+  onToggleTheme: () => void;
+}
+
+type ToastType =
+  | "success"
+  | "error"
+  | "info";
+
+interface Toast {
+  message: string;
+  type: ToastType;
 }
 
 export default function RegexTester({
-    theme,
-    onToggleTheme,
+  theme,
+  onToggleTheme,
 }: RegexTesterProps) {
-    const [pattern, setPattern] = useState("");
-    const [testText, setTestText] = useState("");
+  const [regex, setRegex] = useState("");
+  const [text, setText] = useState("");
 
-    const [matches, setMatches] = useState<RegexMatch[]>([]);
-    const [tested, setTested] = useState(false);
+  const [result, setResult] =
+    useState<RegexTestResult | null>(null);
 
-    const [error, setError] = useState<string | null>(null);
+  const [isUploadingRegex, setIsUploadingRegex] =
+    useState(false);
 
-    const [isUploadingRegex, setIsUploadingRegex] =
-        useState(false);
+  const [isUploadingText, setIsUploadingText] =
+    useState(false);
 
-    const [isUploadingText, setIsUploadingText] =
-        useState(false);
+  const [toast, setToast] =
+    useState<Toast | null>(null);
 
-    const regexInputRef = useRef<HTMLInputElement>(null);
-    const textInputRef = useRef<HTMLInputElement>(null);
+  const regexInputRef =
+    useRef<HTMLInputElement>(null);
 
-    const isDark = theme === "dark";
+  const textInputRef =
+    useRef<HTMLInputElement>(null);
 
-    const handleTest = () => {
-        setTested(true);
-        setError(null);
-        setMatches([]);
+  const toastTimerRef =
+    useRef<number | null>(null);
 
-        if (!pattern.trim()) {
-            setError("Please enter a regular expression.");
-            return;
-        }
+  const isDark = theme === "dark";
 
-        if (!testText) {
-            setError("Please enter test text.");
-            return;
-        }
+  /* ---------------------------------- */
+  /* Toast */
+  /* ---------------------------------- */
 
-        const result = testRegex(pattern, testText, {
-            global: true,
-        });
+  const showToast = (
+    message: string,
+    type: ToastType = "success"
+  ) => {
+    if (toastTimerRef.current !== null) {
+      window.clearTimeout(
+        toastTimerRef.current
+      );
+    }
 
-        if (!result.valid) {
-            setError(result.error);
-            return;
-        }
+    setToast({
+      message,
+      type,
+    });
 
-        setMatches(result.matches);
+    toastTimerRef.current =
+      window.setTimeout(() => {
+        setToast(null);
+        toastTimerRef.current = null;
+      }, 3500);
+  };
+
+  const closeToast = () => {
+    if (toastTimerRef.current !== null) {
+      window.clearTimeout(
+        toastTimerRef.current
+      );
+
+      toastTimerRef.current = null;
+    }
+
+    setToast(null);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (toastTimerRef.current !== null) {
+        window.clearTimeout(
+          toastTimerRef.current
+        );
+      }
     };
+  }, []);
 
-    const handleClear = () => {
-        setPattern("");
-        setTestText("");
-        setMatches([]);
-        setError(null);
-        setTested(false);
+  /* ---------------------------------- */
+  /* Test Regex */
+  /* ---------------------------------- */
 
-        if (regexInputRef.current) {
-            regexInputRef.current.value = "";
+  const handleTest = () => {
+    if (!regex.trim()) {
+      setResult(null);
+
+      showToast(
+        "Please enter a regular expression.",
+        "error"
+      );
+
+      return;
+    }
+
+    if (!text.trim()) {
+      setResult(null);
+
+      showToast(
+        "Please enter some test text.",
+        "error"
+      );
+
+      return;
+    }
+
+    const testResult = testRegex(
+      regex,
+      text,
+      {
+        global: true,
+      }
+    );
+
+    setResult(testResult);
+
+    if (!testResult.valid) {
+      showToast(
+        testResult.error ||
+          "Invalid regular expression.",
+        "error"
+      );
+
+      return;
+    }
+
+    if (
+      testResult.matches.length === 0
+    ) {
+      showToast(
+        "Regex is valid, but no matches were found.",
+        "info"
+      );
+
+      return;
+    }
+
+    showToast(
+      `${testResult.matches.length} match${
+        testResult.matches.length === 1
+          ? ""
+          : "es"
+      } found.`,
+      "success"
+    );
+  };
+
+  /* ---------------------------------- */
+  /* Clear */
+  /* ---------------------------------- */
+
+  const handleClear = () => {
+    setRegex("");
+    setText("");
+    setResult(null);
+
+    if (regexInputRef.current) {
+      regexInputRef.current.value = "";
+    }
+
+    if (textInputRef.current) {
+      textInputRef.current.value = "";
+    }
+
+    showToast(
+      "Regex tester cleared.",
+      "info"
+    );
+  };
+
+  /* ---------------------------------- */
+  /* Upload Regex */
+  /* ---------------------------------- */
+
+  const handleRegexUpload = async (
+    event: ChangeEvent<HTMLInputElement>
+  ) => {
+    const file =
+      event.target.files?.[0];
+
+    if (!file) {
+      return;
+    }
+
+    setIsUploadingRegex(true);
+
+    try {
+      const content =
+        await file.text();
+
+      const trimmedContent =
+        content.trim();
+
+      if (!trimmedContent) {
+        showToast(
+          "The uploaded regex file is empty.",
+          "error"
+        );
+
+        return;
+      }
+
+      setRegex(trimmedContent);
+
+      showToast(
+        "Regex file uploaded successfully.",
+        "success"
+      );
+    } catch {
+      showToast(
+        "Unable to read regex file.",
+        "error"
+      );
+    } finally {
+      setIsUploadingRegex(false);
+
+      event.target.value = "";
+    }
+  };
+
+  /* ---------------------------------- */
+  /* Upload Text */
+  /* ---------------------------------- */
+
+  const handleTextUpload = async (
+    event: ChangeEvent<HTMLInputElement>
+  ) => {
+    const file =
+      event.target.files?.[0];
+
+    if (!file) {
+      return;
+    }
+
+    setIsUploadingText(true);
+
+    try {
+      const content =
+        await file.text();
+
+      if (!content) {
+        showToast(
+          "The uploaded text file is empty.",
+          "error"
+        );
+
+        return;
+      }
+
+      setText(content);
+
+      showToast(
+        "Text file uploaded successfully.",
+        "success"
+      );
+    } catch {
+      showToast(
+        "Unable to read text file.",
+        "error"
+      );
+    } finally {
+      setIsUploadingText(false);
+
+      event.target.value = "";
+    }
+  };
+
+  /* ---------------------------------- */
+  /* Get Match Text */
+  /* ---------------------------------- */
+
+  const getMatchText = () => {
+    if (
+      !result ||
+      !result.valid ||
+      result.matches.length === 0
+    ) {
+      return "";
+    }
+
+    return result.matches
+      .map(
+        (match, index) =>
+          `Match ${index + 1}: ${match.value}\nPosition: ${match.index}`
+      )
+      .join("\n\n");
+  };
+
+  /* ---------------------------------- */
+  /* Copy Matches */
+  /* ---------------------------------- */
+
+  const handleCopyMatches = async () => {
+    const matchText =
+      getMatchText();
+
+    if (!matchText) {
+      showToast(
+        "There are no matches to copy.",
+        "error"
+      );
+
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(
+        matchText
+      );
+
+      showToast(
+        "Matches copied to clipboard.",
+        "success"
+      );
+    } catch {
+      showToast(
+        "Unable to copy matches.",
+        "error"
+      );
+    }
+  };
+
+  /* ---------------------------------- */
+  /* Download Matches */
+  /* ---------------------------------- */
+
+  const handleDownloadMatches = () => {
+    const matchText =
+      getMatchText();
+
+    if (!matchText) {
+      showToast(
+        "There are no matches to download.",
+        "error"
+      );
+
+      return;
+    }
+
+    const content = [
+      "Regex Tester",
+      "==============",
+      "",
+      `Regex: ${regex}`,
+      "",
+      "Matches",
+      "-------",
+      "",
+      matchText,
+      "",
+    ].join("\n");
+
+    try {
+      const blob = new Blob(
+        [content],
+        {
+          type:
+            "text/plain;charset=utf-8",
         }
+      );
 
-        if (textInputRef.current) {
-            textInputRef.current.value = "";
-        }
-    };
+      const url =
+        URL.createObjectURL(blob);
 
-    const readFile = (
-        file: File,
-        type: "regex" | "text"
-    ) => {
-        const reader = new FileReader();
+      const link =
+        document.createElement("a");
 
-        reader.onload = () => {
-            const content =
-                typeof reader.result === "string"
-                    ? reader.result
-                    : "";
+      link.href = url;
+      link.download =
+        "regex-matches.txt";
 
-            if (type === "regex") {
-                setPattern(content.trim());
-            } else {
-                setTestText(content);
-            }
+      document.body.appendChild(link);
 
-            setError(null);
-            setTested(false);
-            setMatches([]);
-        };
+      link.click();
 
-        reader.onerror = () => {
-            setError(
-                type === "regex"
-                    ? "Unable to read regex file."
-                    : "Unable to read text file."
-            );
-        };
+      link.remove();
 
-        reader.readAsText(file);
-    };
+      URL.revokeObjectURL(url);
 
-    const handleRegexUpload = (
-        event: ChangeEvent<HTMLInputElement>
-    ) => {
-        const file = event.target.files?.[0];
+      showToast(
+        "Matches downloaded successfully.",
+        "success"
+      );
+    } catch {
+      showToast(
+        "Unable to download matches.",
+        "error"
+      );
+    }
+  };
 
-        if (!file) return;
+  /* ---------------------------------- */
+  /* Toast Classes */
+  /* ---------------------------------- */
 
-        setIsUploadingRegex(true);
+  const toastContainerClass =
+    toast?.type === "success"
+      ? isDark
+        ? "border-green-900 bg-green-950 text-green-300"
+        : "border-green-200 bg-green-50 text-green-800"
+      : toast?.type === "error"
+      ? isDark
+        ? "border-red-900 bg-red-950 text-red-300"
+        : "border-red-200 bg-red-50 text-red-800"
+      : isDark
+      ? "border-blue-900 bg-blue-950 text-blue-300"
+      : "border-blue-200 bg-blue-50 text-blue-800";
 
-        readFile(file, "regex");
+  const toastIconClass =
+    toast?.type === "success"
+      ? "bg-green-600"
+      : toast?.type === "error"
+      ? "bg-red-600"
+      : "bg-blue-600";
 
-        setTimeout(() => {
-            setIsUploadingRegex(false);
-        }, 300);
-    };
+  /* ---------------------------------- */
+  /* Render */
+  /* ---------------------------------- */
 
-    const handleTextUpload = (
-        event: ChangeEvent<HTMLInputElement>
-    ) => {
-        const file = event.target.files?.[0];
+  return (
+    <div className="relative w-full">
 
-        if (!file) return;
+      {/* Action Row */}
 
-        setIsUploadingText(true);
+      <div className="flex flex-wrap items-center gap-3">
 
-        readFile(file, "text");
+        {/* Test Regex */}
 
-        setTimeout(() => {
-            setIsUploadingText(false);
-        }, 300);
-    };
+        <button
+          type="button"
+          onClick={handleTest}
+          className={`cursor-pointer rounded-xl px-5 py-2.5 text-sm font-medium shadow-sm transition ${
+            isDark
+              ? "bg-white text-black hover:bg-zinc-200"
+              : "bg-zinc-900 text-white hover:bg-zinc-800"
+          }`}
+        >
+          Test Regex
+        </button>
 
-    return (
-        <div className="w-full">
-            {/* Regular Expression */}
-            {/* Action Row */}
-            <div className="flex flex-wrap items-center gap-3">
-                {/* Test Regex */}
-                <button
-                    type="button"
-                    onClick={handleTest}
-                    className={`cursor-pointer rounded-xl px-5 py-2.5 text-sm font-medium shadow-sm transition ${isDark
-                            ? "bg-white text-black hover:bg-zinc-200"
-                            : "bg-zinc-900 text-white hover:bg-zinc-800"
-                        }`}
-                >
-                    Test Regex
-                </button>
+        {/* Upload Regex */}
 
-                {/* Upload Regex */}
-                <button
-                    type="button"
-                    onClick={() => regexInputRef.current?.click()}
-                    className={`cursor-pointer rounded-xl border px-5 py-2.5 text-sm font-medium shadow-sm transition ${isDark
-                            ? "border-zinc-700 bg-zinc-900 text-zinc-100 hover:bg-zinc-800"
-                            : "border-zinc-300 bg-white text-zinc-900 hover:bg-zinc-100"
-                        }`}
-                >
-                    {isUploadingRegex ? "Uploading..." : "Upload Regex"}
-                </button>
+        <button
+          type="button"
+          onClick={() =>
+            regexInputRef.current?.click()
+          }
+          disabled={isUploadingRegex}
+          className={`cursor-pointer rounded-xl border px-5 py-2.5 text-sm font-medium shadow-sm transition disabled:cursor-not-allowed disabled:opacity-60 ${
+            isDark
+              ? "border-zinc-700 bg-zinc-900 text-zinc-100 hover:bg-zinc-800"
+              : "border-zinc-300 bg-white text-zinc-900 hover:bg-zinc-100"
+          }`}
+        >
+          {isUploadingRegex
+            ? "Uploading..."
+            : "Upload Regex"}
+        </button>
 
-                {/* Upload Text */}
-                <button
-                    type="button"
-                    onClick={() => textInputRef.current?.click()}
-                    className={`cursor-pointer rounded-xl border px-5 py-2.5 text-sm font-medium shadow-sm transition ${isDark
-                            ? "border-zinc-700 bg-zinc-900 text-zinc-100 hover:bg-zinc-800"
-                            : "border-zinc-300 bg-white text-zinc-900 hover:bg-zinc-100"
-                        }`}
-                >
-                    {isUploadingText ? "Uploading..." : "Upload Text"}
-                </button>
+        {/* Upload Text */}
 
-                {/* Clear */}
-                <button
-                    type="button"
-                    onClick={handleClear}
-                    className={`cursor-pointer rounded-xl border px-5 py-2.5 text-sm font-medium shadow-sm transition ${isDark
-                            ? "border-zinc-700 bg-zinc-900 text-zinc-100 hover:bg-zinc-800"
-                            : "border-zinc-300 bg-white text-zinc-900 hover:bg-zinc-100"
-                        }`}
-                >
-                    Clear
-                </button>
+        <button
+          type="button"
+          onClick={() =>
+            textInputRef.current?.click()
+          }
+          disabled={isUploadingText}
+          className={`cursor-pointer rounded-xl border px-5 py-2.5 text-sm font-medium shadow-sm transition disabled:cursor-not-allowed disabled:opacity-60 ${
+            isDark
+              ? "border-zinc-700 bg-zinc-900 text-zinc-100 hover:bg-zinc-800"
+              : "border-zinc-300 bg-white text-zinc-900 hover:bg-zinc-100"
+          }`}
+        >
+          {isUploadingText
+            ? "Uploading..."
+            : "Upload Text"}
+        </button>
 
-                {/* Push Dark/Light to right */}
-                <div className="flex-1" />
+        {/* Clear */}
 
-                {/* Dark / Light */}
-                <button
-                    type="button"
-                    onClick={onToggleTheme}
-                    className={`cursor-pointer rounded-xl border px-5 py-2.5 text-sm font-medium shadow-sm transition ${isDark
-                            ? "border-zinc-700 bg-zinc-900 text-zinc-100 hover:bg-zinc-800"
-                            : "border-zinc-300 bg-white text-zinc-900 hover:bg-zinc-100"
-                        }`}
-                >
-                    {isDark ? "☀️ Light" : "🌙 Dark"}
-                </button>
+        <button
+          type="button"
+          onClick={handleClear}
+          className={`cursor-pointer rounded-xl border px-5 py-2.5 text-sm font-medium shadow-sm transition ${
+            isDark
+              ? "border-zinc-700 bg-zinc-900 text-zinc-100 hover:bg-zinc-800"
+              : "border-zinc-300 bg-white text-zinc-900 hover:bg-zinc-100"
+          }`}
+        >
+          Clear
+        </button>
+
+        {/* Dark / Light */}
+
+        <div className="ml-auto">
+          <button
+            type="button"
+            onClick={onToggleTheme}
+            className={`cursor-pointer rounded-xl border px-5 py-2.5 text-sm font-medium shadow-sm transition ${
+              isDark
+                ? "border-zinc-700 bg-zinc-900 text-zinc-100 hover:bg-zinc-800"
+                : "border-zinc-300 bg-white text-zinc-900 hover:bg-zinc-100"
+            }`}
+          >
+            {isDark
+              ? "☀️ Light"
+              : "🌙 Dark"}
+          </button>
+        </div>
+      </div>
+
+      {/* Standard Toast */}
+
+      {toast && (
+        <div
+          className="fixed right-5 top-5 z-[100] max-w-[calc(100vw-2rem)]"
+          role="status"
+          aria-live="polite"
+        >
+          <div
+            className={`flex min-w-[280px] max-w-md items-center gap-3 rounded-2xl border px-5 py-4 text-sm font-medium shadow-lg transition-all ${toastContainerClass}`}
+          >
+            {/* Filled Icon */}
+
+            <div
+              className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-base font-bold text-white ${toastIconClass}`}
+            >
+              {toast.type === "success"
+                ? "✓"
+                : toast.type === "error"
+                ? "!"
+                : "i"}
             </div>
-            <div className="mb-6">
-                <label
-                    htmlFor="regex-pattern"
-                    className={`mb-2 block text-sm font-semibold ${isDark
-                            ? "text-zinc-200"
-                            : "text-zinc-800"
-                        }`}
-                >
-                    Regular Expression
-                </label>
 
-                <input
-                    id="regex-pattern"
-                    type="text"
-                    value={pattern}
-                    onChange={(event) => {
-                        setPattern(event.target.value);
-                        setTested(false);
-                        setError(null);
-                    }}
-                    placeholder="Example: \d+  |  [A-Z]+  |  ^hello$"
-                    spellCheck={false}
-                    className={`w-full rounded-xl border px-4 py-3 font-mono text-sm outline-none transition ${isDark
-                            ? "border-zinc-700 bg-zinc-900 text-zinc-100 placeholder:text-zinc-600 focus:border-zinc-500"
-                            : "border-zinc-300 bg-white text-zinc-900 placeholder:text-zinc-400 focus:border-zinc-500"
-                        }`}
-                />
+            {/* Message */}
+
+            <p className="min-w-0 flex-1 leading-5">
+              {toast.message}
+            </p>
+
+            {/* Close */}
+
+            <button
+              type="button"
+              onClick={closeToast}
+              aria-label="Close notification"
+              className="cursor-pointer shrink-0 text-lg leading-none opacity-60 transition hover:opacity-100"
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Regular Expression */}
+
+      <div className="mb-6 mt-8">
+
+        <label
+          className={`mb-2 block text-sm font-semibold ${
+            isDark
+              ? "text-zinc-200"
+              : "text-zinc-800"
+          }`}
+        >
+          Regular Expression
+        </label>
+
+        <input
+          type="text"
+          value={regex}
+          onChange={(event) =>
+            setRegex(event.target.value)
+          }
+          placeholder={
+            "Example: \\d+ | [A-Z]+ | ^hello$"
+          }
+          className={`w-full rounded-xl border px-4 py-3 font-mono text-sm outline-none transition ${
+            isDark
+              ? "border-zinc-700 bg-zinc-900 text-zinc-100 placeholder:text-zinc-500 focus:border-zinc-500"
+              : "border-zinc-300 bg-white text-zinc-900 placeholder:text-zinc-400 focus:border-zinc-500"
+          }`}
+        />
+      </div>
+
+      {/* Test Text */}
+
+      <div className="mb-6">
+
+        <label
+          className={`mb-2 block text-sm font-semibold ${
+            isDark
+              ? "text-zinc-200"
+              : "text-zinc-800"
+          }`}
+        >
+          Test Text
+        </label>
+
+        <textarea
+          value={text}
+          onChange={(event) =>
+            setText(event.target.value)
+          }
+          placeholder="Enter text to test your regular expression..."
+          rows={8}
+          className={`w-full resize-y rounded-xl border px-4 py-3 font-mono text-sm outline-none transition ${
+            isDark
+              ? "border-zinc-700 bg-zinc-900 text-zinc-100 placeholder:text-zinc-500 focus:border-zinc-500"
+              : "border-zinc-300 bg-white text-zinc-900 placeholder:text-zinc-400 focus:border-zinc-500"
+          }`}
+        />
+      </div>
+
+      {/* Hidden Regex File Input */}
+
+      <input
+        ref={regexInputRef}
+        type="file"
+        accept=".txt,.regex,.regexp"
+        className="hidden"
+        onChange={handleRegexUpload}
+      />
+
+      {/* Hidden Text File Input */}
+
+      <input
+        ref={textInputRef}
+        type="file"
+        accept=".txt,.csv,.log,.md"
+        className="hidden"
+        onChange={handleTextUpload}
+      />
+
+      {/* Match Result */}
+
+      <div className="mt-8">
+
+        {/* Result Header */}
+
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+
+          <h2
+            className={`text-lg font-semibold ${
+              isDark
+                ? "text-white"
+                : "text-zinc-900"
+            }`}
+          >
+            Match Result
+          </h2>
+
+          {/* Result Actions */}
+
+          <div className="flex items-center gap-2">
+
+            <button
+              type="button"
+              onClick={handleCopyMatches}
+              className={`cursor-pointer rounded-lg border px-3 py-2 text-xs font-medium shadow-sm transition ${
+                isDark
+                  ? "border-zinc-700 bg-zinc-900 text-zinc-100 hover:bg-zinc-800"
+                  : "border-zinc-300 bg-white text-zinc-900 hover:bg-zinc-100"
+              }`}
+            >
+              Copy All
+            </button>
+
+            <button
+              type="button"
+              onClick={handleDownloadMatches}
+              className={`cursor-pointer rounded-lg border px-3 py-2 text-xs font-medium shadow-sm transition ${
+                isDark
+                  ? "border-zinc-700 bg-zinc-900 text-zinc-100 hover:bg-zinc-800"
+                  : "border-zinc-300 bg-white text-zinc-900 hover:bg-zinc-100"
+              }`}
+            >
+              Download
+            </button>
+
+          </div>
+        </div>
+
+        {/* Result Box */}
+
+        <div
+          className={`rounded-xl border p-5 ${
+            isDark
+              ? "border-zinc-800 bg-zinc-900"
+              : "border-zinc-200 bg-white"
+          }`}
+        >
+
+          {/* No Result */}
+
+          {!result && (
+            <p
+              className={`text-sm ${
+                isDark
+                  ? "text-zinc-500"
+                  : "text-zinc-500"
+              }`}
+            >
+              No matches yet.
+            </p>
+          )}
+
+          {/* Invalid Regex */}
+
+          {result &&
+            !result.valid && (
+              <div>
+
+                <p className="font-medium text-red-500">
+                  ✕ Invalid Regular Expression
+                </p>
 
                 <p
-                    className={`mt-2 text-xs ${isDark
-                            ? "text-zinc-500"
-                            : "text-zinc-500"
-                        }`}
+                  className={`mt-2 text-sm ${
+                    isDark
+                      ? "text-zinc-400"
+                      : "text-zinc-600"
+                  }`}
                 >
-                    Example: \d+ &nbsp; | &nbsp; [A-Z]+
-                    &nbsp; | &nbsp; ^hello$
+                  {result.error}
                 </p>
-            </div>
 
-            {/* Test Text */}
+              </div>
+            )}
 
-            <div className="mb-6">
-                <label
-                    htmlFor="regex-test-text"
-                    className={`mb-2 block text-sm font-semibold ${isDark
-                            ? "text-zinc-200"
-                            : "text-zinc-800"
-                        }`}
+          {/* Valid Regex - No Matches */}
+
+          {result &&
+            result.valid &&
+            result.matches.length === 0 && (
+              <div>
+
+                <p className="font-medium text-blue-500">
+                  ✓ Valid Regular Expression
+                </p>
+
+                <p
+                  className={`mt-2 text-sm ${
+                    isDark
+                      ? "text-zinc-400"
+                      : "text-zinc-600"
+                  }`}
                 >
-                    Test Text
-                </label>
+                  No matches found.
+                </p>
 
-                <textarea
-                    id="regex-test-text"
-                    value={testText}
-                    onChange={(event) => {
-                        setTestText(event.target.value);
-                        setTested(false);
-                        setError(null);
-                    }}
-                    placeholder="Enter the text you want to test your regex against..."
-                    rows={7}
-                    className={`w-full resize-y rounded-xl border px-4 py-3 font-mono text-sm outline-none transition ${isDark
-                            ? "border-zinc-700 bg-zinc-900 text-zinc-100 placeholder:text-zinc-600 focus:border-zinc-500"
-                            : "border-zinc-300 bg-white text-zinc-900 placeholder:text-zinc-400 focus:border-zinc-500"
+              </div>
+            )}
+
+          {/* Valid Regex - Matches */}
+
+          {result &&
+            result.valid &&
+            result.matches.length > 0 && (
+              <div>
+
+                <div className="mb-5">
+
+                  <p className="font-medium text-emerald-500">
+                    ✓ Valid Regular Expression
+                  </p>
+
+                  <p
+                    className={`mt-2 text-sm ${
+                      isDark
+                        ? "text-zinc-400"
+                        : "text-zinc-600"
+                    }`}
+                  >
+                    Matches Found:{" "}
+                    <strong>
+                      {result.matches.length}
+                    </strong>
+                  </p>
+
+                </div>
+
+                {/* Matches */}
+
+                <div className="space-y-3">
+
+                  {result.matches.map(
+                    (match, index) => (
+                      <div
+                        key={`${match.index}-${index}`}
+                        className={`rounded-lg border p-4 ${
+                          isDark
+                            ? "border-zinc-800 bg-zinc-950"
+                            : "border-zinc-200 bg-zinc-50"
                         }`}
-                />
-            </div>
-
-            {/* Hidden File Inputs */}
-
-            <input
-                ref={regexInputRef}
-                type="file"
-                accept=".txt,.regex,text/plain"
-                onChange={handleRegexUpload}
-                className="hidden"
-            />
-
-            <input
-                ref={textInputRef}
-                type="file"
-                accept=".txt,text/plain"
-                onChange={handleTextUpload}
-                className="hidden"
-            />
-
-
-
-            {/* Match Result */}
-
-            <div className="mt-8">
-                <h2
-                    className={`mb-3 text-lg font-semibold ${isDark
-                            ? "text-zinc-100"
-                            : "text-zinc-900"
-                        }`}
-                >
-                    Match Result
-                </h2>
-
-                {!tested ? (
-                    <div
-                        className={`rounded-xl border p-5 text-sm ${isDark
-                                ? "border-zinc-800 bg-zinc-900 text-zinc-400"
-                                : "border-zinc-200 bg-white text-zinc-500"
-                            }`}
-                    >
-                        No matches yet.
-                    </div>
-                ) : error ? (
-                    <div
-                        className={`rounded-xl border p-5 ${isDark
-                                ? "border-red-900/50 bg-red-950/30"
-                                : "border-red-200 bg-red-50"
-                            }`}
-                    >
-                        <p
-                            className={`text-sm font-semibold ${isDark
-                                    ? "text-red-400"
-                                    : "text-red-600"
-                                }`}
-                        >
-                            ✕ Invalid Regular Expression
-                        </p>
+                      >
 
                         <p
-                            className={`mt-2 text-sm ${isDark
-                                    ? "text-red-300"
-                                    : "text-red-700"
-                                }`}
+                          className={`mb-2 text-sm font-semibold ${
+                            isDark
+                              ? "text-zinc-200"
+                              : "text-zinc-800"
+                          }`}
                         >
-                            {error}
+                          Match {index + 1}
                         </p>
-                    </div>
-                ) : (
-                    <div
-                        className={`rounded-xl border p-5 ${isDark
-                                ? "border-zinc-800 bg-zinc-900"
-                                : "border-zinc-200 bg-white"
-                            }`}
-                    >
-                        {/* Valid */}
+
+                        <code
+                          className={`block break-all rounded-md px-3 py-2 font-mono text-sm ${
+                            isDark
+                              ? "bg-zinc-900 text-emerald-300"
+                              : "bg-white text-emerald-700"
+                          }`}
+                        >
+                          {match.value}
+                        </code>
 
                         <p
-                            className={`text-sm font-semibold ${isDark
-                                    ? "text-green-400"
-                                    : "text-green-600"
-                                }`}
+                          className={`mt-2 text-xs ${
+                            isDark
+                              ? "text-zinc-500"
+                              : "text-zinc-500"
+                          }`}
                         >
-                            ✓ Valid Regular Expression
+                          Position:{" "}
+                          {match.index}
                         </p>
 
-                        {/* Count */}
+                      </div>
+                    )
+                  )}
 
-                        <p
-                            className={`mt-4 text-sm ${isDark
-                                    ? "text-zinc-300"
-                                    : "text-zinc-700"
-                                }`}
-                        >
-                            Matches Found:{" "}
-                            <strong>{matches.length}</strong>
-                        </p>
+                </div>
 
-                        {/* No matches */}
+              </div>
+            )}
 
-                        {matches.length === 0 ? (
-                            <p
-                                className={`mt-4 text-sm ${isDark
-                                        ? "text-zinc-500"
-                                        : "text-zinc-500"
-                                    }`}
-                            >
-                                No matches found in the test text.
-                            </p>
-                        ) : (
-                            <div className="mt-5 space-y-3">
-                                {matches.map((match, index) => (
-                                    <div
-                                        key={`${match.index}-${index}`}
-                                        className={`rounded-lg border p-4 ${isDark
-                                                ? "border-zinc-800 bg-zinc-950"
-                                                : "border-zinc-200 bg-zinc-50"
-                                            }`}
-                                    >
-                                        <p
-                                            className={`text-xs font-semibold uppercase tracking-wide ${isDark
-                                                    ? "text-zinc-500"
-                                                    : "text-zinc-500"
-                                                }`}
-                                        >
-                                            Match {index + 1}
-                                        </p>
-
-                                        <p
-                                            className={`mt-2 break-all font-mono text-sm ${isDark
-                                                    ? "text-zinc-100"
-                                                    : "text-zinc-900"
-                                                }`}
-                                        >
-                                            {match.value}
-                                        </p>
-
-                                        <p
-                                            className={`mt-2 text-xs ${isDark
-                                                    ? "text-zinc-500"
-                                                    : "text-zinc-500"
-                                                }`}
-                                        >
-                                            Position: {match.index}
-                                        </p>
-                                    </div>
-                                ))}
-                            </div>
-                        )}
-                    </div>
-                )}
-            </div>
         </div>
-    );
+      </div>
+    </div>
+  );
 }

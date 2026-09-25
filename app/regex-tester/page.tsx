@@ -28,13 +28,7 @@ export default function RegexTesterPage() {
         }
       `}
     >
-      <div
-        className={
-          theme === "dark"
-            ? "dark"
-            : ""
-        }
-      >
+      <div className={theme === "dark" ? "dark" : ""}>
         <div className="mx-auto w-full max-w-6xl">
 
           {/* Header */}

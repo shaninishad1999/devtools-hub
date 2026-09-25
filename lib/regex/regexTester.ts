@@ -23,7 +23,9 @@ export function buildRegex(
   options: RegexOptions = {}
 ): RegExp {
   if (!pattern.trim()) {
-    throw new Error("Please enter a regular expression.");
+    throw new Error(
+      "Please enter a regular expression."
+    );
   }
 
   const flags = [
@@ -53,16 +55,14 @@ export function testRegex(
 
     let match: RegExpExecArray | null;
 
-    while ((match = regex.exec(text)) !== null) {
+    while (
+      (match = regex.exec(text)) !== null
+    ) {
       matches.push({
         value: match[0],
         index: match.index,
       });
 
-      /*
-       * Prevent infinite loops for
-       * zero-length matches.
-       */
       if (match[0] === "") {
         regex.lastIndex += 1;
       }
