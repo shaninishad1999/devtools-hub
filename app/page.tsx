@@ -1,10 +1,44 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { useState } from "react";
+
+import Navbar from "@/components/layout/Navbar";
+import Footer from "@/components/layout/Footer";
+
+import Hero from "@/components/home/Hero";
+import PopularTools from "@/components/home/PopularTools";
+import Categories from "@/components/home/Categories";
+
+export default function HomePage() {
+  const [theme, setTheme] =
+    useState<"light" | "dark">("light");
+
+  const toggleTheme = () => {
+    setTheme((current) =>
+      current === "light" ? "dark" : "light"
+    );
+  };
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <h1> Hi welcome to new page</h1>
+    <main
+      className={`
+        min-h-screen
+        ${theme === "dark"
+          ? "bg-zinc-950 text-zinc-50"
+          : "bg-zinc-50 text-zinc-900"
+        }
+      `}
+    >
+      <Navbar
+        theme={theme}
+        onToggleTheme={toggleTheme}
+      />
 
-    </div>
+      <Hero theme={theme} />
+
+      <PopularTools theme={theme} />
+      <Categories theme={theme} />
+      <Footer theme={theme} />
+    </main>
   );
 }
