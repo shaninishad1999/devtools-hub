@@ -1,14 +1,19 @@
 "use client";
 
 import { useState } from "react";
+import Navbar from "@/components/layout/Navbar";
+import Footer from "@/components/layout/Footer";
 import Base64Decoder from "@/components/tools/encoding/Base64Decoder";
 
 export default function Base64DecoderPage() {
-  const [theme, setTheme] = useState<"light" | "dark">("light");
+  const [theme, setTheme] =
+    useState<"light" | "dark">("light");
 
   const toggleTheme = () => {
     setTheme((current) =>
-      current === "light" ? "dark" : "light"
+      current === "light"
+        ? "dark"
+        : "light"
     );
   };
 
@@ -16,10 +21,6 @@ export default function Base64DecoderPage() {
     <main
       className={`
         min-h-screen
-        px-4
-        py-8
-        sm:px-6
-        lg:px-8
         ${
           theme === "dark"
             ? "bg-zinc-950 text-zinc-50"
@@ -27,11 +28,26 @@ export default function Base64DecoderPage() {
         }
       `}
     >
-      {/* Dark class for Tailwind dark: utilities */}
-      <div className={theme === "dark" ? "dark" : ""}>
-        <div className="mx-auto w-full max-w-6xl">
+      {/* Navbar */}
 
-          {/* Header */}
+      <Navbar
+        theme={theme}
+        onToggleTheme={toggleTheme}
+      />
+
+      {/* Dark class for Tailwind */}
+
+      <div
+        className={
+          theme === "dark"
+            ? "dark"
+            : ""
+        }
+      >
+        <div className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
+
+          {/* Tool Header */}
+
           <div className="mb-8">
             <h1
               className={`
@@ -60,18 +76,19 @@ export default function Base64DecoderPage() {
                 }
               `}
             >
-              Decode Base64 encoded text into readable UTF-8
-              text directly in your browser.
+              Decode Base64 encoded text into readable
+              UTF-8 text directly in your browser.
             </p>
           </div>
 
           {/* Tool */}
+
           <Base64Decoder
             theme={theme}
-            onToggleTheme={toggleTheme}
           />
 
           {/* Privacy */}
+
           <p
             className={`
               mt-8
@@ -83,10 +100,16 @@ export default function Base64DecoderPage() {
               }
             `}
           >
-            Your Base64 data is processed locally in your browser.
+            Your Base64 data is processed locally
+            in your browser.
           </p>
+
         </div>
       </div>
+
+      {/* Footer */}
+
+      <Footer theme={theme} />
     </main>
   );
 }

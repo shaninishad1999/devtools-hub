@@ -5,6 +5,8 @@ import { useState } from "react";
 import JsonEditor from "@/components/tools/csv/JsonEditor";
 import JsonFileUpload from "@/components/tools/csv/JsonFileUpload";
 import { jsonToCsv } from "@/lib/csv/csv-utils";
+import Footer from "@/components/layout/Footer";
+import Navbar from "@/components/layout/Navbar";
 
 const defaultJson = `[
   {
@@ -36,8 +38,20 @@ export default function JsonToCsvPage() {
   const [theme, setTheme] =
     useState<"light" | "dark">("light");
 
+  const isDark = theme === "dark";
+
   const [toast, setToast] =
     useState<Toast | null>(null);
+
+  // ==========================================
+  // THEME
+  // ==========================================
+
+  const handleThemeToggle = () => {
+    setTheme((current) =>
+      current === "light" ? "dark" : "light"
+    );
+  };
 
   // ==========================================
   // TOAST
@@ -225,37 +239,93 @@ export default function JsonToCsvPage() {
   };
 
   // ==========================================
-  // THEME
+  // THEME-CONDITIONAL CLASS HELPERS
+  // (theme is local state, not the html `dark`
+  // class, so Tailwind's `dark:` variant never
+  // fires here — every color must be chosen
+  // explicitly from `isDark`.)
   // ==========================================
 
-  const handleThemeToggle = () => {
-    setTheme((current) =>
-      current === "light"
-        ? "dark"
-        : "light"
-    );
+  const primaryButtonClass = `
+    cursor-pointer
+    rounded-lg
+    px-4
+    py-2
+    text-sm
+    font-medium
+    transition-all
+    duration-200
+    hover:-translate-y-0.5
+    active:translate-y-0
+    ${
+      isDark
+        ? "bg-white text-black hover:bg-zinc-200 hover:shadow-md hover:shadow-black/30"
+        : "bg-black text-white hover:bg-zinc-800 hover:shadow-md"
+    }
+  `;
 
-    showToast(
-      theme === "light"
-        ? "Dark mode enabled."
-        : "Light mode enabled."
-    );
-  };
+  const secondaryButtonClass = `
+    cursor-pointer
+    rounded-lg
+    border
+    px-4
+    py-2
+    text-sm
+    font-medium
+    transition-all
+    duration-200
+    hover:-translate-y-0.5
+    active:translate-y-0
+    disabled:cursor-not-allowed
+    disabled:opacity-50
+    ${
+      isDark
+        ? "border-zinc-700 bg-zinc-900 text-white hover:bg-zinc-800 hover:shadow-sm hover:shadow-black/30"
+        : "border-zinc-300 bg-white text-zinc-900 hover:bg-zinc-100 hover:shadow-sm"
+    }
+  `;
+
+  const dangerButtonClass = `
+    cursor-pointer
+    rounded-lg
+    border
+    px-4
+    py-2
+    text-sm
+    font-medium
+    transition-all
+    duration-200
+    hover:-translate-y-0.5
+    active:translate-y-0
+    ${
+      isDark
+        ? "border-red-900/60 bg-zinc-900 text-red-400 hover:bg-red-950/30"
+        : "border-red-200 bg-white text-red-600 hover:bg-red-50 hover:shadow-sm"
+    }
+  `;
 
   return (
     <main
-      className="
+      className={`
         min-h-screen
-        bg-zinc-50
-        px-4
-        py-8
-        text-zinc-900
-        dark:bg-zinc-950
-        dark:text-zinc-50
-        sm:px-6
-        lg:px-8
-      "
+        flex
+        flex-col
+        ${
+          isDark
+            ? "bg-zinc-950 text-white"
+            : "bg-zinc-50 text-zinc-900"
+        }
+      `}
     >
+      {/* ======================================
+          NAVBAR
+      ====================================== */}
+
+      <Navbar
+        theme={theme}
+        onToggleTheme={handleThemeToggle}
+      />
+
       {/* ======================================
           TOAST
       ====================================== */}
@@ -284,25 +354,14 @@ export default function JsonToCsvPage() {
               px-4
               py-3
               shadow-lg
-              backdrop-blur
               ${
                 toast.type === "success"
-                  ? `
-                    border-green-200
-                    bg-green-50
-                    text-green-800
-                    dark:border-green-900
-                    dark:bg-green-950
-                    dark:text-green-300
-                  `
-                  : `
-                    border-red-200
-                    bg-red-50
-                    text-red-800
-                    dark:border-red-900
-                    dark:bg-red-950
-                    dark:text-red-300
-                  `
+                  ? isDark
+                    ? "border-green-900 bg-green-950 text-green-300"
+                    : "border-green-200 bg-green-50 text-green-800"
+                  : isDark
+                    ? "border-red-900 bg-red-950 text-red-300"
+                    : "border-red-200 bg-red-50 text-red-800"
               }
             `}
           >
@@ -342,6 +401,7 @@ export default function JsonToCsvPage() {
                 cursor-pointer
                 text-lg
                 leading-none
+                text-current
                 opacity-60
                 transition
                 hover:opacity-100
@@ -355,21 +415,34 @@ export default function JsonToCsvPage() {
       )}
 
       {/* ======================================
-          MAIN CONTAINER
+          MAIN
       ====================================== */}
 
-      <div className="mx-auto max-w-6xl">
+      <div className="mx-auto w-full max-w-6xl">
 
         {/* ======================================
-            HEADER
+            PAGE TITLE
         ====================================== */}
 
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold tracking-tight">
+        <div className="mb-8 px-4 pt-8 sm:px-6 lg:px-8">
+          <h1
+            className={`
+              text-3xl
+              font-bold
+              tracking-tight
+              ${isDark ? "text-white" : "text-zinc-900"}
+            `}
+          >
             JSON to CSV Converter
           </h1>
 
-          <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
+          <p
+            className={`
+              mt-2
+              text-sm
+              ${isDark ? "text-zinc-300" : "text-zinc-600"}
+            `}
+          >
             Convert JSON data into CSV format
             directly in your browser.
           </p>
@@ -379,117 +452,54 @@ export default function JsonToCsvPage() {
             TOOLBAR
         ====================================== */}
 
-        <div className="mb-4 flex flex-wrap items-center gap-2">
-
-          {/* CONVERT */}
+        <div
+          className="
+            mb-4
+            flex
+            flex-wrap
+            items-center
+            gap-2
+            px-4
+            sm:px-6
+            lg:px-8
+          "
+        >
+          {/* Convert */}
 
           <button
             type="button"
             onClick={handleConvert}
-            className="
-              cursor-pointer
-              rounded-lg
-              bg-black
-              px-4
-              py-2
-              text-sm
-              font-medium
-              text-white
-              transition
-              hover:bg-zinc-800
-              dark:bg-white
-              dark:text-black
-              dark:hover:bg-zinc-200
-            "
+            className={primaryButtonClass}
           >
             Convert to CSV
           </button>
 
-          {/* LOAD EXAMPLE */}
+          {/* Load Example */}
 
           <button
             type="button"
             onClick={handleLoadExample}
-            className="
-              cursor-pointer
-              rounded-lg
-              border
-              border-zinc-300
-              bg-white
-              px-4
-              py-2
-              text-sm
-              font-medium
-              transition
-              hover:bg-zinc-100
-              dark:border-zinc-700
-              dark:bg-zinc-900
-              dark:hover:bg-zinc-800
-            "
+            className={secondaryButtonClass}
           >
             Load Example
           </button>
 
-          {/* UPLOAD JSON */}
+          {/* Upload File */}
 
           <JsonFileUpload
             onFileLoad={handleFileLoad}
+            theme={theme}
             compact
           />
 
-          {/* CLEAR */}
+          {/* Clear */}
 
           <button
             type="button"
             onClick={handleClear}
-            className="
-              cursor-pointer
-              rounded-lg
-              border
-              border-red-200
-              bg-white
-              px-4
-              py-2
-              text-sm
-              font-medium
-              text-red-600
-              transition
-              hover:bg-red-50
-              dark:border-red-900
-              dark:bg-zinc-900
-              dark:text-red-400
-              dark:hover:bg-red-950/30
-            "
+            className={dangerButtonClass}
           >
             Clear
-          </button>
-
-          {/* DARK / LIGHT */}
-
-          <button
-            type="button"
-            onClick={handleThemeToggle}
-            className="
-              ml-auto
-              cursor-pointer
-              rounded-lg
-              border
-              border-zinc-300
-              bg-white
-              px-4
-              py-2
-              text-sm
-              font-medium
-              transition
-              hover:bg-zinc-100
-              dark:border-zinc-700
-              dark:bg-zinc-900
-              dark:hover:bg-zinc-800
-            "
-          >
-            {theme === "light"
-              ? "🌙 Dark"
-              : "☀️ Light"}
           </button>
         </div>
 
@@ -497,24 +507,42 @@ export default function JsonToCsvPage() {
             JSON INPUT
         ====================================== */}
 
-        <div className="mb-8">
-          <h2 className="mb-3 text-lg font-semibold">
-            JSON Input
-          </h2>
+        <div
+          className="
+            w-full
+            px-4
+            py-8
+            sm:px-6
+            lg:px-8
+          "
+        >
+          <div className="mb-8">
 
-          <JsonEditor
-            value={json}
-            onChange={(value) => {
-              setJson(value);
-              setCsv("");
-            }}
-            theme={theme}
-            height="350px"
-          />
+            <h2
+              className={`
+                mb-3
+                text-lg
+                font-semibold
+                ${isDark ? "text-white" : "text-zinc-900"}
+              `}
+            >
+              JSON Input
+            </h2>
+
+            <JsonEditor
+              value={json}
+              onChange={(value) => {
+                setJson(value);
+                setCsv("");
+              }}
+              theme={theme}
+              height="350px"
+            />
+          </div>
         </div>
 
         {/* ======================================
-            OUTPUT HEADER
+            CSV OUTPUT HEADER
         ====================================== */}
 
         <div
@@ -524,69 +552,45 @@ export default function JsonToCsvPage() {
             items-center
             justify-between
             gap-3
+            px-4
+            sm:px-6
+            lg:px-8
           "
         >
-          <h2 className="text-lg font-semibold">
+          <h2
+            className={`
+              text-lg
+              font-semibold
+              ${isDark ? "text-white" : "text-zinc-900"}
+            `}
+          >
             CSV Output
           </h2>
 
           <div className="flex gap-2">
 
-            {/* COPY */}
+            {/* Copy */}
 
             <button
               type="button"
               onClick={handleCopy}
               disabled={!csv.trim()}
-              className="
-                cursor-pointer
-                rounded-lg
-                border
-                border-zinc-300
-                bg-white
-                px-4
-                py-2
-                text-sm
-                font-medium
-                transition
-                hover:bg-zinc-100
-                disabled:cursor-not-allowed
-                disabled:opacity-50
-                dark:border-zinc-700
-                dark:bg-zinc-900
-                dark:hover:bg-zinc-800
-              "
+              className={secondaryButtonClass}
             >
               Copy
             </button>
 
-            {/* DOWNLOAD */}
+            {/* Download */}
 
             <button
               type="button"
               onClick={handleDownload}
               disabled={!csv.trim()}
-              className="
-                cursor-pointer
-                rounded-lg
-                border
-                border-zinc-300
-                bg-white
-                px-4
-                py-2
-                text-sm
-                font-medium
-                transition
-                hover:bg-zinc-100
-                disabled:cursor-not-allowed
-                disabled:opacity-50
-                dark:border-zinc-700
-                dark:bg-zinc-900
-                dark:hover:bg-zinc-800
-              "
+              className={secondaryButtonClass}
             >
               Download
             </button>
+
           </div>
         </div>
 
@@ -594,23 +598,41 @@ export default function JsonToCsvPage() {
             CSV OUTPUT
         ====================================== */}
 
-        <JsonEditor
-          value={csv}
-          onChange={() => {}}
-          theme={theme}
-          height="350px"
-          readOnly
-        />
+        <div className="px-4 sm:px-6 lg:px-8">
+          <JsonEditor
+            value={csv}
+            onChange={() => {}}
+            theme={theme}
+            height="350px"
+            readOnly
+          />
+        </div>
 
         {/* ======================================
             PRIVACY
         ====================================== */}
 
-        <div className="mt-6 text-sm text-zinc-500">
+        <div
+          className={`
+            mt-6
+            px-4
+            pb-8
+            text-sm
+            ${isDark ? "text-zinc-300" : "text-zinc-500"}
+            sm:px-6
+            lg:px-8
+          `}
+        >
           Your JSON data is processed locally
           in your browser.
         </div>
       </div>
+
+      {/* ======================================
+          FOOTER
+      ====================================== */}
+
+      <Footer theme={theme} />
     </main>
   );
 }

@@ -8,13 +8,17 @@ interface JsonFileUploadProps {
     fileName: string
   ) => void;
 
+  theme?: "light" | "dark";
   compact?: boolean;
 }
 
 export default function JsonFileUpload({
   onFileLoad,
+  theme = "light",
   compact = false,
 }: JsonFileUploadProps) {
+  const isDark = theme === "dark";
+
   const inputRef =
     useRef<HTMLInputElement>(null);
 
@@ -123,22 +127,21 @@ export default function JsonFileUpload({
           onClick={() =>
             inputRef.current?.click()
           }
-          className="
+          className={`
             cursor-pointer
             rounded-lg
             border
-            border-zinc-300
-            bg-white
             px-4
             py-2
             text-sm
             font-medium
             transition
-            hover:bg-zinc-100
-            dark:border-zinc-700
-            dark:bg-zinc-900
-            dark:hover:bg-zinc-800
-          "
+            ${
+              isDark
+                ? "border-zinc-700 bg-zinc-900 text-white hover:bg-zinc-800"
+                : "border-zinc-300 bg-white text-zinc-900 hover:bg-zinc-100"
+            }
+          `}
         >
           Upload JSON
         </button>
@@ -178,18 +181,12 @@ export default function JsonFileUpload({
           transition
           ${
             isDragging
-              ? `
-                border-blue-500
-                bg-blue-50
-                dark:border-blue-400
-                dark:bg-blue-950/30
-              `
-              : `
-                border-zinc-300
-                bg-white
-                dark:border-zinc-700
-                dark:bg-zinc-900
-              `
+              ? isDark
+                ? "border-blue-400 bg-blue-950/30"
+                : "border-blue-500 bg-blue-50"
+              : isDark
+                ? "border-zinc-700 bg-zinc-900"
+                : "border-zinc-300 bg-white"
           }
         `}
       >
@@ -198,18 +195,23 @@ export default function JsonFileUpload({
         </div>
 
         <p
-          className="
+          className={`
             mt-2
             text-sm
             font-medium
-            text-zinc-900
-            dark:text-zinc-100
-          "
+            ${isDark ? "text-zinc-100" : "text-zinc-900"}
+          `}
         >
           Drop your JSON file here
         </p>
 
-        <p className="mt-1 text-xs text-zinc-500">
+        <p
+          className={`
+            mt-1
+            text-xs
+            ${isDark ? "text-zinc-400" : "text-zinc-500"}
+          `}
+        >
           or
         </p>
 
@@ -218,27 +220,32 @@ export default function JsonFileUpload({
           onClick={() =>
             inputRef.current?.click()
           }
-          className="
+          className={`
             mt-3
             cursor-pointer
             rounded-lg
-            bg-black
             px-4
             py-2
             text-sm
             font-medium
-            text-white
             transition
-            hover:bg-zinc-800
-            dark:bg-white
-            dark:text-black
-            dark:hover:bg-zinc-200
-          "
+            ${
+              isDark
+                ? "bg-white text-black hover:bg-zinc-200"
+                : "bg-black text-white hover:bg-zinc-800"
+            }
+          `}
         >
           Choose JSON File
         </button>
 
-        <p className="mt-3 text-xs text-zinc-500">
+        <p
+          className={`
+            mt-3
+            text-xs
+            ${isDark ? "text-zinc-400" : "text-zinc-500"}
+          `}
+        >
           .json files • Maximum 50 MB
         </p>
       </div>

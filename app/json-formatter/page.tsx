@@ -12,6 +12,9 @@ import {
   repairJson,
 } from "@/lib/json/json-utils";
 
+import Footer from "@/components/layout/Footer";
+import Navbar from "@/components/layout/Navbar";
+
 const defaultJson = `{
   "name": "DevTools Hub",
   "type": "Developer Toolkit",
@@ -44,7 +47,6 @@ export default function JsonFormatterPage() {
   const [toast, setToast] =
     useState<Toast | null>(null);
 
-  // File input reference
   const inputRef =
     useRef<HTMLInputElement>(null);
 
@@ -87,12 +89,9 @@ export default function JsonFormatterPage() {
       return;
     }
 
-    // JSON file validation
     if (
       file.type !== "application/json" &&
-      !file.name
-        .toLowerCase()
-        .endsWith(".json")
+      !file.name.toLowerCase().endsWith(".json")
     ) {
       showToast(
         "Please upload a valid JSON file.",
@@ -103,7 +102,6 @@ export default function JsonFormatterPage() {
       return;
     }
 
-    // 10 MB limit
     const maxSize = 10 * 1024 * 1024;
 
     if (file.size > maxSize) {
@@ -131,7 +129,6 @@ export default function JsonFormatterPage() {
       }
 
       setJson(content);
-
       setHasValidated(false);
 
       setValidation({
@@ -156,7 +153,6 @@ export default function JsonFormatterPage() {
 
     reader.readAsText(file);
 
-    // Same file can be uploaded again
     event.target.value = "";
   };
 
@@ -178,7 +174,6 @@ export default function JsonFormatterPage() {
       const formatted = formatJson(json);
 
       setJson(formatted);
-
       setHasValidated(false);
 
       showToast(
@@ -203,7 +198,6 @@ export default function JsonFormatterPage() {
     const result = validateJson(json);
 
     setValidation(result);
-
     setHasValidated(true);
 
     if (result.valid) {
@@ -279,7 +273,6 @@ export default function JsonFormatterPage() {
       const minified = minifyJson(json);
 
       setJson(minified);
-
       setHasValidated(false);
 
       showToast(
@@ -405,18 +398,24 @@ export default function JsonFormatterPage() {
 
   return (
     <main
-      className="
+      className={`
         min-h-screen
-        bg-zinc-50
-        px-4
-        py-8
-        text-zinc-900
-        dark:bg-zinc-950
-        dark:text-zinc-50
-        sm:px-6
-        lg:px-8
-      "
+        flex
+        flex-col
+        ${
+          theme === "dark"
+            ? "bg-zinc-950 text-zinc-50"
+            : "bg-zinc-50 text-zinc-900"
+        }
+      `}
     >
+      {/* Navbar */}
+
+      <Navbar
+        theme={theme}
+        onToggleTheme={handleThemeToggle}
+      />
+
       {/* -----------------------------------
           TOAST
       ----------------------------------- */}
@@ -518,9 +517,7 @@ export default function JsonFormatterPage() {
 
             <button
               type="button"
-              onClick={() =>
-                setToast(null)
-              }
+              onClick={() => setToast(null)}
               className="
                 ml-auto
                 cursor-pointer
@@ -538,18 +535,40 @@ export default function JsonFormatterPage() {
         </div>
       )}
 
-      <div className="mx-auto max-w-6xl">
-
+      <div
+        className="
+          mx-auto
+          w-full
+          max-w-6xl
+          px-4
+          py-8
+          sm:px-6
+          lg:px-8
+        "
+      >
         {/* -----------------------------------
             HEADER
         ----------------------------------- */}
 
         <div className="mb-8">
-          <h1 className="text-3xl font-bold tracking-tight">
+          <h1
+            className="
+              text-3xl
+              font-bold
+              tracking-tight
+            "
+          >
             JSON Formatter
           </h1>
 
-          <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
+          <p
+            className="
+              mt-2
+              text-sm
+              text-zinc-600
+              dark:text-zinc-400
+            "
+          >
             Format, validate and minify JSON data
             directly in your browser.
           </p>
@@ -559,8 +578,15 @@ export default function JsonFormatterPage() {
             TOOLBAR
         ----------------------------------- */}
 
-        <div className="mb-4 flex flex-wrap items-center gap-2">
-
+        <div
+          className="
+            mb-4
+            flex
+            flex-wrap
+            items-center
+            gap-2
+          "
+        >
           {/* Upload File */}
 
           <button
@@ -579,8 +605,8 @@ export default function JsonFormatterPage() {
               text-white
               transition
               hover:bg-zinc-800
-              dark:bg-white
-              dark:text-black
+              dark:bg-zinc-100
+              dark:text-zinc-900
               dark:hover:bg-zinc-200
             "
           >
@@ -607,13 +633,18 @@ export default function JsonFormatterPage() {
               rounded-lg
               border
               border-zinc-300
+              bg-white
               px-3
               py-2
               text-sm
               font-medium
+              text-zinc-900
               transition
               hover:bg-zinc-100
+
               dark:border-zinc-700
+              dark:bg-zinc-900
+              dark:text-zinc-100
               dark:hover:bg-zinc-800
             "
           >
@@ -630,13 +661,18 @@ export default function JsonFormatterPage() {
               rounded-lg
               border
               border-zinc-300
+              bg-white
               px-3
               py-2
               text-sm
               font-medium
+              text-zinc-900
               transition
               hover:bg-zinc-100
+
               dark:border-zinc-700
+              dark:bg-zinc-900
+              dark:text-zinc-100
               dark:hover:bg-zinc-800
             "
           >
@@ -653,13 +689,18 @@ export default function JsonFormatterPage() {
               rounded-lg
               border
               border-zinc-300
+              bg-white
               px-3
               py-2
               text-sm
               font-medium
+              text-zinc-900
               transition
               hover:bg-zinc-100
+
               dark:border-zinc-700
+              dark:bg-zinc-900
+              dark:text-zinc-100
               dark:hover:bg-zinc-800
             "
           >
@@ -676,13 +717,18 @@ export default function JsonFormatterPage() {
               rounded-lg
               border
               border-zinc-300
+              bg-white
               px-3
               py-2
               text-sm
               font-medium
+              text-zinc-900
               transition
               hover:bg-zinc-100
+
               dark:border-zinc-700
+              dark:bg-zinc-900
+              dark:text-zinc-100
               dark:hover:bg-zinc-800
             "
           >
@@ -699,13 +745,18 @@ export default function JsonFormatterPage() {
               rounded-lg
               border
               border-zinc-300
+              bg-white
               px-3
               py-2
               text-sm
               font-medium
+              text-zinc-900
               transition
               hover:bg-zinc-100
+
               dark:border-zinc-700
+              dark:bg-zinc-900
+              dark:text-zinc-100
               dark:hover:bg-zinc-800
             "
           >
@@ -722,13 +773,18 @@ export default function JsonFormatterPage() {
               rounded-lg
               border
               border-zinc-300
+              bg-white
               px-3
               py-2
               text-sm
               font-medium
+              text-zinc-900
               transition
               hover:bg-zinc-100
+
               dark:border-zinc-700
+              dark:bg-zinc-900
+              dark:text-zinc-100
               dark:hover:bg-zinc-800
             "
           >
@@ -745,6 +801,7 @@ export default function JsonFormatterPage() {
               rounded-lg
               border
               border-red-200
+              bg-white
               px-3
               py-2
               text-sm
@@ -752,13 +809,15 @@ export default function JsonFormatterPage() {
               text-red-600
               transition
               hover:bg-red-50
+
               dark:border-red-900/50
+              dark:bg-zinc-900
+              dark:text-red-400
               dark:hover:bg-red-950/30
             "
           >
             Clear
           </button>
-
         </div>
 
         {/* -----------------------------------
@@ -770,8 +829,6 @@ export default function JsonFormatterPage() {
           onChange={(value) => {
             setJson(value);
 
-            // Hide old validation
-            // when user edits JSON
             setHasValidated(false);
           }}
           theme={theme}
@@ -799,13 +856,14 @@ export default function JsonFormatterPage() {
             mt-6
             text-sm
             text-zinc-500
-            dark:text-zinc-500
+            dark:text-zinc-400
           "
         >
           Your JSON is processed locally in your browser.
         </div>
-
       </div>
+
+      <Footer theme={theme} />
     </main>
   );
 }

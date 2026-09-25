@@ -187,7 +187,7 @@ export default function Footer({
 
           <div className="flex items-center gap-5">
             <Link
-              href="/#privacy"
+              href="/privacy"
               className={`text-sm transition ${
                 isDark
                   ? "text-zinc-500 hover:text-zinc-300"
@@ -198,7 +198,7 @@ export default function Footer({
             </Link>
 
             <Link
-              href="/#about"
+              href="/about"
               className={`text-sm transition ${
                 isDark
                   ? "text-zinc-500 hover:text-zinc-300"

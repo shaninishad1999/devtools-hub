@@ -1,7 +1,9 @@
 "use client";
 
-import Base64Encoder from "@/components/tools/encoding/Base64Encoder";
 import { useState } from "react";
+import Navbar from "@/components/layout/Navbar";
+import Footer from "@/components/layout/Footer";
+import Base64Encoder from "@/components/tools/encoding/Base64Encoder";
 
 export default function Base64EncoderPage() {
   const [theme, setTheme] =
@@ -17,10 +19,8 @@ export default function Base64EncoderPage() {
     <main
       className={`
         min-h-screen
-        px-4
-        py-8
-        sm:px-6
-        lg:px-8
+        flex
+        flex-col
         ${
           theme === "dark"
             ? "bg-zinc-950 text-zinc-50"
@@ -28,10 +28,24 @@ export default function Base64EncoderPage() {
         }
       `}
     >
-      <div className={theme === "dark" ? "dark" : ""}>
-        <div className="mx-auto w-full max-w-6xl">
+      {/* Navbar */}
 
-          {/* Header */}
+      <Navbar
+        theme={theme}
+        onToggleTheme={toggleTheme}
+      />
+
+      {/* Page Content */}
+
+      <div
+        className={`
+          flex-1
+          ${theme === "dark" ? "dark" : ""}
+        `}
+      >
+        <div className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
+
+          {/* Tool Header */}
 
           <div className="mb-8">
             <h1
@@ -70,7 +84,7 @@ export default function Base64EncoderPage() {
 
           <Base64Encoder
             theme={theme}
-            onToggleTheme={toggleTheme}
+           
           />
 
           {/* Privacy */}
@@ -90,6 +104,10 @@ export default function Base64EncoderPage() {
           </p>
         </div>
       </div>
+
+      {/* Footer */}
+
+      <Footer theme={theme} />
     </main>
   );
 }

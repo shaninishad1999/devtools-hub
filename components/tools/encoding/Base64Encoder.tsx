@@ -4,7 +4,6 @@ import { useRef, useState } from "react";
 
 interface Base64EncoderProps {
   theme: "light" | "dark";
-  onToggleTheme: () => void;
 }
 
 interface Toast {
@@ -14,15 +13,12 @@ interface Toast {
 
 export default function Base64Encoder({
   theme,
-  onToggleTheme,
 }: Base64EncoderProps) {
   const [input, setInput] = useState("");
   const [output, setOutput] = useState("");
-  const [toast, setToast] =
-    useState<Toast | null>(null);
+  const [toast, setToast] = useState<Toast | null>(null);
 
-  const fileInputRef =
-    useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   /* -----------------------------
      Encode
@@ -118,11 +114,15 @@ export default function Base64Encoder({
   const handleClear = () => {
     setInput("");
     setOutput("");
-    setToast(null);
 
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
+
+    setToast({
+      type: "success",
+      message: "Input and output cleared successfully.",
+    });
   };
 
   /* -----------------------------
@@ -169,18 +169,13 @@ export default function Base64Encoder({
     }
 
     try {
-      const blob = new Blob(
-        [output],
-        {
-          type: "text/plain;charset=utf-8",
-        }
-      );
+      const blob = new Blob([output], {
+        type: "text/plain;charset=utf-8",
+      });
 
-      const url =
-        URL.createObjectURL(blob);
+      const url = URL.createObjectURL(blob);
 
-      const link =
-        document.createElement("a");
+      const link = document.createElement("a");
 
       link.href = url;
       link.download = "encoded-base64.txt";
@@ -208,11 +203,11 @@ export default function Base64Encoder({
   return (
     <div className="w-full">
 
- {/* =========================
+      {/* =========================
           Action Row
       ========================== */}
 
-      <div className="mb-5 flex items-center justify-between gap-4 overflow-x-auto">
+      <div className="mb-5 flex items-center gap-3 overflow-x-auto">
 
         {/* Encode */}
 
@@ -297,37 +292,6 @@ export default function Base64Encoder({
         >
           Clear
         </button>
-
-        {/* Theme */}
-
-        <button
-          type="button"
-          onClick={onToggleTheme}
-          className="
-            ml-auto
-            cursor-pointer
-            rounded-xl
-            border
-            border-zinc-300
-            bg-white
-            px-4
-            py-2.5
-            text-sm
-            font-medium
-            text-zinc-900
-            shadow-sm
-            transition
-            hover:bg-zinc-100
-            dark:border-zinc-700
-            dark:bg-zinc-900
-            dark:text-zinc-100
-            dark:hover:bg-zinc-800
-          "
-        >
-          {theme === "light"
-            ? "🌙 Dark"
-            : "☀️ Light"}
-        </button>
       </div>
 
       {/* =========================
@@ -401,7 +365,6 @@ export default function Base64Encoder({
         />
       </div>
 
-     
       {/* =========================
           Output Heading
       ========================== */}

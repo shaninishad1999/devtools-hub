@@ -10,11 +10,16 @@ interface CsvFileUploadProps {
     content: string,
     fileName: string
   ) => void;
+
+  theme?: "light" | "dark";
 }
 
 export default function CsvFileUpload({
   onFileLoad,
+  theme = "light",
 }: CsvFileUploadProps) {
+  const isDark = theme === "dark";
+
   const inputRef =
     useRef<HTMLInputElement>(null);
 
@@ -134,18 +139,12 @@ export default function CsvFileUpload({
           transition
           ${
             isDragging
-              ? `
-                border-blue-500
-                bg-blue-50
-                dark:border-blue-400
-                dark:bg-blue-950/30
-              `
-              : `
-                border-zinc-300
-                bg-white
-                dark:border-zinc-700
-                dark:bg-zinc-900
-              `
+              ? isDark
+                ? "border-blue-400 bg-blue-950/30"
+                : "border-blue-500 bg-blue-50"
+              : isDark
+                ? "border-zinc-700 bg-zinc-900"
+                : "border-zinc-300 bg-white"
           }
         `}
       >
@@ -155,18 +154,21 @@ export default function CsvFileUpload({
         </div>
 
         <p
-          className="
+          className={`
             mt-2
             text-sm
             font-medium
-            text-zinc-900
-            dark:text-zinc-100
-          "
+            ${isDark ? "text-zinc-100" : "text-zinc-900"}
+          `}
         >
           Drop your CSV file here
         </p>
 
-        <p className="mt-1 text-xs text-zinc-500">
+        <p
+          className={`mt-1 text-xs ${
+            isDark ? "text-zinc-400" : "text-zinc-500"
+          }`}
+        >
           or
         </p>
 
@@ -175,27 +177,30 @@ export default function CsvFileUpload({
           onClick={() =>
             inputRef.current?.click()
           }
-          className="
+          className={`
             mt-3
             cursor-pointer
             rounded-lg
-            bg-black
             px-4
             py-2
             text-sm
             font-medium
-            text-white
             transition
-            hover:bg-zinc-800
-            dark:bg-white
-            dark:text-black
-            dark:hover:bg-zinc-200
-          "
+            ${
+              isDark
+                ? "bg-white text-black hover:bg-zinc-200"
+                : "bg-black text-white hover:bg-zinc-800"
+            }
+          `}
         >
           Choose CSV File
         </button>
 
-        <p className="mt-3 text-xs text-zinc-500">
+        <p
+          className={`mt-3 text-xs ${
+            isDark ? "text-zinc-400" : "text-zinc-500"
+          }`}
+        >
           .csv files only • Maximum 50 MB
         </p>
 

@@ -402,43 +402,7 @@ export default function ImageCompressor({
           />
         </div>
 
-        {/* Theme */}
-
-        <button
-          type="button"
-          onClick={onToggleTheme}
-          className={`
-            cursor-pointer
-            shrink-0
-            rounded-xl
-            border
-            px-4
-            py-2.5
-            text-sm
-            font-medium
-            shadow-sm
-            transition
-            ${
-              theme === "dark"
-                ? `
-                  border-zinc-700
-                  bg-zinc-900
-                  text-zinc-100
-                  hover:bg-zinc-800
-                `
-                : `
-                  border-zinc-300
-                  bg-white
-                  text-zinc-900
-                  hover:bg-zinc-100
-                `
-            }
-          `}
-        >
-          {theme === "light"
-            ? "🌙 Dark"
-            : "☀️ Light"}
-        </button>
+      
       </div>
 
       {/* Image Input */}

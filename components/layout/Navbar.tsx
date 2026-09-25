@@ -29,7 +29,9 @@ export default function Navbar({
       }`}
     >
       <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-4 sm:px-6 lg:px-8">
+
         {/* Logo */}
+
         <Link
           href="/"
           onClick={closeMenu}
@@ -43,7 +45,9 @@ export default function Navbar({
         </Link>
 
         {/* Desktop Navigation */}
+
         <nav className="hidden items-center gap-2 md:flex">
+
           <Link
             href="/"
             className={`rounded-xl px-4 py-2 text-sm font-medium transition ${
@@ -77,8 +81,10 @@ export default function Navbar({
             Categories
           </Link>
 
+          {/* About → /about */}
+
           <Link
-            href="/#about"
+            href="/about"
             className={`rounded-xl px-4 py-2 text-sm font-medium transition ${
               isDark
                 ? "text-zinc-300 hover:bg-zinc-900 hover:text-white"
@@ -89,6 +95,7 @@ export default function Navbar({
           </Link>
 
           {/* Theme */}
+
           <button
             type="button"
             onClick={onToggleTheme}
@@ -108,7 +115,9 @@ export default function Navbar({
         </nav>
 
         {/* Mobile Actions */}
+
         <div className="flex items-center gap-2 md:hidden">
+
           <button
             type="button"
             onClick={onToggleTheme}
@@ -128,7 +137,9 @@ export default function Navbar({
 
           <button
             type="button"
-            onClick={() => setIsMenuOpen((current) => !current)}
+            onClick={() =>
+              setIsMenuOpen((current) => !current)
+            }
             aria-label="Toggle navigation menu"
             aria-expanded={isMenuOpen}
             className={`cursor-pointer rounded-xl border px-3 py-2 text-lg transition ${
@@ -143,6 +154,7 @@ export default function Navbar({
       </div>
 
       {/* Mobile Navigation */}
+
       {isMenuOpen && (
         <div
           className={`border-t md:hidden ${
@@ -152,6 +164,7 @@ export default function Navbar({
           }`}
         >
           <nav className="mx-auto flex w-full max-w-6xl flex-col px-4 py-4 sm:px-6">
+
             <Link
               href="/"
               onClick={closeMenu}
@@ -188,8 +201,10 @@ export default function Navbar({
               Categories
             </Link>
 
+            {/* About → /about */}
+
             <Link
-              href="/#about"
+              href="/about"
               onClick={closeMenu}
               className={`rounded-xl px-4 py-3 text-sm font-medium transition ${
                 isDark
@@ -199,6 +214,7 @@ export default function Navbar({
             >
               About
             </Link>
+
           </nav>
         </div>
       )}

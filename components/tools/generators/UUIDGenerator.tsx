@@ -343,7 +343,7 @@ export default function UUIDGenerator({
 
     showToast(
       "Generated UUIDs cleared",
-      "info"
+      "success"
     );
   };
 
@@ -616,33 +616,7 @@ export default function UUIDGenerator({
           Clear
         </button>
 
-        {/* Dark / Light */}
-
-        <button
-          type="button"
-          onClick={onToggleTheme}
-          className={`
-            cursor-pointer
-            rounded-xl
-            border
-            px-5
-            py-2.5
-            text-sm
-            font-medium
-            shadow-sm
-            transition
-            md:ml-auto
-            ${
-              isDark
-                ? "border-zinc-700 bg-zinc-900 text-zinc-100 hover:bg-zinc-800"
-                : "border-zinc-300 bg-white text-zinc-900 hover:bg-zinc-100"
-            }
-          `}
-        >
-          {isDark
-            ? "☀️ Light"
-            : "🌙 Dark"}
-        </button>
+        
       </div>
 
       {/* Configuration */}

@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import ImageCompressor from "@/components/tools/image/ImageCompressor";
+import Navbar from "@/components/layout/Navbar";
+import Footer from "@/components/layout/Footer";
 
 export default function ImageCompressorPage() {
   const [theme, setTheme] =
@@ -16,20 +18,20 @@ export default function ImageCompressorPage() {
   };
 
   return (
-    <main
-      className={`
-        min-h-screen
-        px-4
-        py-8
-        sm:px-6
-        lg:px-8
-        ${
-          theme === "dark"
-            ? "bg-zinc-950 text-zinc-50"
-            : "bg-zinc-50 text-zinc-900"
-        }
-      `}
+     <main
+      className={`min-h-screen flex flex-col ${
+        theme === "dark"
+          ? "bg-zinc-950 text-zinc-50"
+          : "bg-zinc-50 text-zinc-900"
+      }`}
     >
+      {/* Navbar */}
+
+      <Navbar
+        theme={theme}
+        onToggleTheme={toggleTheme}
+      />
+
       <div
         className={
           theme === "dark"
@@ -38,7 +40,7 @@ export default function ImageCompressorPage() {
         }
       >
         {/* <div className="mx-auto w-full max-w-6xl"> */}
-        <div className="mx-auto max-w-6xl">
+        <div className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
 
         
 
@@ -104,6 +106,8 @@ export default function ImageCompressorPage() {
           </p>
         </div>
       </div>
+
+       <Footer theme={theme} />
     </main>
   );
 }

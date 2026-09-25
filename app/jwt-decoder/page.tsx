@@ -12,6 +12,8 @@ import {
   getIssuedAt,
   JwtDecodedResult,
 } from "@/lib/jwt/jwt-utils";
+import Footer from "@/components/layout/Footer";
+import Navbar from "@/components/layout/Navbar";
 
 const exampleJwt =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjMiLCJuYW1lIjoiU2hhbmkiLCJyb2xlIjoiZGV2ZWxvcGVyIiwiaWF0IjoxNzAwMDAwMDAwLCJleHAiOjQxMDAwMDAwMDB9.example-signature";
@@ -21,7 +23,11 @@ export default function JwtDecoderPage() {
 
   const [theme, setTheme] =
     useState<"light" | "dark">("light");
-
+const toggleTheme = () => {
+    setTheme((current) =>
+      current === "light" ? "dark" : "light"
+    );
+  };
   const [result, setResult] =
     useState<JwtDecodedResult>({
       valid: false,
@@ -180,12 +186,26 @@ export default function JwtDecoderPage() {
     getIssuedAt(result.payload);
 
   return (
-    <main className="min-h-screen bg-zinc-50 px-4 py-8 text-zinc-900 dark:bg-zinc-950 dark:text-zinc-50 sm:px-6 lg:px-8">
+    <main
+      className={`
+        min-h-screen
+        ${
+          theme === "dark"
+            ? "bg-zinc-950 text-zinc-50"
+            : "bg-zinc-50 text-zinc-900"
+        }
+      `}
+    >
 
       {/* ==================================
           TOAST
       ================================== */}
+{/* Navbar */}
 
+      <Navbar
+        theme={theme}
+        onToggleTheme={toggleTheme}
+      />
       {toast && (
         <div
           className="
@@ -300,7 +320,7 @@ export default function JwtDecoderPage() {
         </div>
       )}
 
-      <div className="mx-auto max-w-6xl">
+      <div className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
 
         {/* ==================================
             HEADER
@@ -373,80 +393,55 @@ export default function JwtDecoderPage() {
 
           {/* Decode */}
 
-          <button
-            type="button"
-            onClick={handleDecode}
-            className="
-              cursor-pointer
-              rounded-lg
-              bg-black
-              px-4
-              py-2
-              text-sm
-              font-medium
-              text-white
-              transition
-              hover:bg-zinc-800
-              dark:bg-white
-              dark:text-black
-              dark:hover:bg-zinc-200
-            "
-          >
-            Decode JWT
-          </button>
-
+      <button
+  type="button"
+  onClick={handleDecode}
+  className="
+    cursor-pointer
+    rounded-lg
+    bg-black
+    px-4
+    py-2
+    text-sm
+    font-medium
+    text-white
+    transition
+    hover:bg-zinc-800
+    dark:bg-zinc-100
+    dark:text-zinc-900
+    dark:hover:bg-zinc-200
+  "
+>
+  Decode JWT
+</button>
           {/* Clear */}
 
-          <button
-            type="button"
-            onClick={handleClear}
-            className="
-              cursor-pointer
-              rounded-lg
-              border
-              border-zinc-300
-              bg-white
-              px-4
-              py-2
-              text-sm
-              font-medium
-              transition
-              hover:bg-zinc-100
-              dark:border-zinc-700
-              dark:bg-zinc-900
-              dark:hover:bg-zinc-800
-            "
-          >
-            Clear
-          </button>
+        {/* Clear */}
 
-          {/* Theme */}
-
-          <button
-            type="button"
-            onClick={handleThemeToggle}
-            className="
-              ml-auto
-              cursor-pointer
-              rounded-lg
-              border
-              border-zinc-300
-              bg-white
-              px-4
-              py-2
-              text-sm
-              font-medium
-              transition
-              hover:bg-zinc-100
-              dark:border-zinc-700
-              dark:bg-zinc-900
-              dark:hover:bg-zinc-800
-            "
-          >
-            {theme === "light"
-              ? "🌙 Dark"
-              : "☀️ Light"}
-          </button>
+<button
+  type="button"
+  onClick={handleClear}
+  className="
+    cursor-pointer
+    rounded-lg
+    border
+    border-zinc-300
+    bg-white
+    px-4
+    py-2
+    text-sm
+    font-medium
+    text-zinc-900
+    transition
+    hover:bg-zinc-100
+    dark:border-zinc-700
+    dark:bg-zinc-900
+    dark:text-zinc-100
+    dark:hover:bg-zinc-800
+  "
+>
+  Clear
+</button>
 
         </div>
 
@@ -523,127 +518,141 @@ export default function JwtDecoderPage() {
           <>
             {/* STATUS */}
 
-            <div
-              className="
-                mb-6
-                grid
-                gap-4
-                sm:grid-cols-2
-                lg:grid-cols-3
-              "
-            >
+          {/* STATUS */}
 
-              {/* Structure */}
+<div className="mb-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
 
-              <div
-                className="
-                  rounded-xl
-                  border
-                  border-green-200
-                  bg-green-50
-                  p-4
-                  dark:border-green-900/50
-                  dark:bg-green-950/30
-                "
-              >
-                <p
-                  className="
-                    text-xs
-                    font-medium
-                    uppercase
-                    tracking-wide
-                    text-green-700
-                    dark:text-green-400
-                  "
-                >
-                  Structure
-                </p>
+  {/* Structure */}
+  <div
+    className="
+      rounded-xl
+      border
+      border-green-200
+      bg-green-50
+      p-4
+      dark:border-green-900/50
+      dark:bg-green-950/30
+    "
+  >
+    <p
+      className="
+        text-xs
+        font-medium
+        uppercase
+        tracking-wide
+        text-green-700
+        dark:text-green-400
+      "
+    >
+      Structure
+    </p>
 
-                <p
-                  className="
-                    mt-1
-                    font-semibold
-                    text-green-800
-                    dark:text-green-300
-                  "
-                >
-                  Valid JWT
-                </p>
-              </div>
+    <p
+      className="
+        mt-1
+        font-semibold
+        text-green-800
+        dark:text-green-200
+      "
+    >
+      Valid JWT
+    </p>
+  </div>
 
-              {/* Expiration */}
+  {/* Expiration */}
+  <div
+    className="
+      rounded-xl
+      border
+      border-zinc-200
+      bg-white
+      p-4
+      dark:border-zinc-800
+      dark:bg-zinc-900
+    "
+  >
+    <p
+      className="
+        text-xs
+        font-medium
+        uppercase
+        tracking-wide
+        text-zinc-500
+        dark:text-zinc-400
+      "
+    >
+      Expiration
+    </p>
 
-              <div
-                className="
-                  rounded-xl
-                  border
-                  border-zinc-200
-                  bg-white
-                  p-4
-                  dark:border-zinc-800
-                  dark:bg-zinc-900
-                "
-              >
-                <p
-                  className="
-                    text-xs
-                    font-medium
-                    uppercase
-                    tracking-wide
-                    text-zinc-500
-                  "
-                >
-                  Expiration
-                </p>
+    <p
+      className="
+        mt-1
+        font-semibold
+        text-zinc-900
+        dark:text-zinc-100
+      "
+    >
+      {!expiration.hasExpiration
+        ? "Not provided"
+        : expiration.expired
+        ? "Expired"
+        : "Not expired"}
+    </p>
 
-                <p className="mt-1 font-semibold">
-                  {!expiration.hasExpiration
-                    ? "Not provided"
-                    : expiration.expired
-                    ? "Expired"
-                    : "Not expired"}
-                </p>
+    {expiration.expirationDate && (
+      <p
+        className="
+          mt-1
+          text-xs
+          text-zinc-600
+          dark:text-zinc-400
+        "
+      >
+        {expiration.expirationDate.toLocaleString()}
+      </p>
+    )}
+  </div>
 
-                {expiration.expirationDate && (
-                  <p className="mt-1 text-xs text-zinc-500">
-                    {expiration.expirationDate.toLocaleString()}
-                  </p>
-                )}
-              </div>
+  {/* Issued At */}
+  <div
+    className="
+      rounded-xl
+      border
+      border-zinc-200
+      bg-white
+      p-4
+      dark:border-zinc-800
+      dark:bg-zinc-900
+    "
+  >
+    <p
+      className="
+        text-xs
+        font-medium
+        uppercase
+        tracking-wide
+        text-zinc-500
+        dark:text-zinc-400
+      "
+    >
+      Issued At
+    </p>
 
-              {/* Issued At */}
+    <p
+      className="
+        mt-1
+        font-semibold
+        text-zinc-900
+        dark:text-zinc-100
+      "
+    >
+      {issuedAt
+        ? issuedAt.toLocaleString()
+        : "Not provided"}
+    </p>
+  </div>
 
-              <div
-                className="
-                  rounded-xl
-                  border
-                  border-zinc-200
-                  bg-white
-                  p-4
-                  dark:border-zinc-800
-                  dark:bg-zinc-900
-                "
-              >
-                <p
-                  className="
-                    text-xs
-                    font-medium
-                    uppercase
-                    tracking-wide
-                    text-zinc-500
-                  "
-                >
-                  Issued At
-                </p>
-
-                <p className="mt-1 font-semibold">
-                  {issuedAt
-                    ? issuedAt.toLocaleString()
-                    : "Not provided"}
-                </p>
-              </div>
-
-            </div>
+</div>
 
             {/* ==================================
                 HEADER
@@ -718,6 +727,7 @@ export default function JwtDecoderPage() {
         </div>
 
       </div>
+        <Footer theme={theme} />
     </main>
   );
 }

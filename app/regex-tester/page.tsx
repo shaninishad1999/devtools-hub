@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import RegexTester from "@/components/tools/regex/RegexTester";
+import Footer from "@/components/layout/Footer";
+import Navbar from "@/components/layout/Navbar";
 
 export default function RegexTesterPage() {
   const [theme, setTheme] =
@@ -14,22 +16,21 @@ export default function RegexTesterPage() {
   };
 
   return (
-    <main
-      className={`
-        min-h-screen
-        px-4
-        py-8
-        sm:px-6
-        lg:px-8
-        ${
-          theme === "dark"
-            ? "bg-zinc-950 text-zinc-50"
-            : "bg-zinc-50 text-zinc-900"
-        }
-      `}
+   <main
+      className={`min-h-screen flex flex-col ${
+        theme === "dark"
+          ? "bg-zinc-950 text-zinc-50"
+          : "bg-zinc-50 text-zinc-900"
+      }`}
     >
+        {/* Navbar */}
+
+      <Navbar
+        theme={theme}
+        onToggleTheme={toggleTheme}
+      />
       <div className={theme === "dark" ? "dark" : ""}>
-        <div className="mx-auto w-full max-w-6xl">
+        <div className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
 
           {/* Header */}
 
@@ -92,6 +93,7 @@ export default function RegexTesterPage() {
 
         </div>
       </div>
+      <Footer theme={theme} />
     </main>
   );
 }

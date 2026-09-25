@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import UUIDGenerator from "@/components/tools/generators/UUIDGenerator";
+import Footer from "@/components/layout/Footer";
+import Navbar from "@/components/layout/Navbar";
 
 export default function UUIDGeneratorPage() {
   const [theme, setTheme] =
@@ -16,20 +18,20 @@ export default function UUIDGeneratorPage() {
   };
 
   return (
-    <main
-      className={`
-        min-h-screen
-        px-4
-        py-8
-        sm:px-6
-        lg:px-8
-        ${
-          theme === "dark"
-            ? "bg-zinc-950 text-zinc-50"
-            : "bg-zinc-50 text-zinc-900"
-        }
-      `}
+     <main
+      className={`min-h-screen flex flex-col ${
+        theme === "dark"
+          ? "bg-zinc-950 text-zinc-50"
+          : "bg-zinc-50 text-zinc-900"
+      }`}
     >
+      {/* Navbar */}
+
+      <Navbar
+        theme={theme}
+        onToggleTheme={toggleTheme}
+      />
+
       <div
         className={
           theme === "dark"
@@ -37,7 +39,7 @@ export default function UUIDGeneratorPage() {
             : ""
         }
       >
-        <div className="mx-auto w-full max-w-6xl">
+        <div className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
 
           {/* Header */}
 
@@ -103,6 +105,7 @@ export default function UUIDGeneratorPage() {
 
         </div>
       </div>
+       <Footer theme={theme} />
     </main>
   );
 }
