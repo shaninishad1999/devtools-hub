@@ -1,5 +1,6 @@
 "use client";
 
+import { tools } from "@/app/data/tools";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -12,8 +13,48 @@ export default function Hero({ theme }: HeroProps) {
 
   const isDark = theme === "dark";
 
+  const query = search.trim().toLowerCase();
+
+  const searchResults = query
+    ? tools.filter((tool) => {
+        const name = tool.name.toLowerCase();
+
+        const words = name.split(" ");
+
+        const nameMatch =
+          name.startsWith(query) ||
+          words.some((word) =>
+            word.startsWith(query)
+          );
+
+        const keywordMatch = tool.keywords?.some(
+          (keyword) =>
+            keyword.toLowerCase().startsWith(query)
+        );
+
+        return nameMatch || keywordMatch;
+      })
+    : [];
+
   return (
-    <section className="mx-auto flex w-full max-w-6xl flex-col items-center px-4 pb-20 pt-20 text-center sm:px-6 sm:pb-24 sm:pt-24 lg:px-8">
+    <section
+      className="
+        mx-auto
+        flex
+        w-full
+        max-w-6xl
+        flex-col
+        items-center
+        px-4
+        pb-20
+        pt-20
+        text-center
+        sm:px-6
+        sm:pb-24
+        sm:pt-24
+        lg:px-8
+      "
+    >
       {/* Badge */}
 
       <div
@@ -71,7 +112,7 @@ export default function Hero({ theme }: HeroProps) {
 
       {/* Search */}
 
-      <div className="mt-10 w-full max-w-2xl">
+      <div className="relative mt-10 w-full max-w-2xl">
         <div
           className={`
             flex
@@ -87,6 +128,8 @@ export default function Hero({ theme }: HeroProps) {
             }
           `}
         >
+          {/* Search Icon */}
+
           <span
             className={`
               px-3
@@ -97,11 +140,16 @@ export default function Hero({ theme }: HeroProps) {
             🔍
           </span>
 
+          {/* Input */}
+
           <input
             type="text"
             value={search}
-            onChange={(event) => setSearch(event.target.value)}
+            onChange={(event) =>
+              setSearch(event.target.value)
+            }
             placeholder="Search developer tools..."
+            autoComplete="off"
             className={`
               min-w-0
               flex-1
@@ -117,6 +165,8 @@ export default function Hero({ theme }: HeroProps) {
               }
             `}
           />
+
+          {/* Explore */}
 
           <Link
             href="#tools"
@@ -138,6 +188,162 @@ export default function Hero({ theme }: HeroProps) {
             Explore
           </Link>
         </div>
+
+        {/* Search Results */}
+
+        {query && (
+          <div
+            className={`
+              absolute
+              left-0
+              right-0
+              top-full
+              z-50
+              mt-2
+              overflow-hidden
+              rounded-2xl
+              border
+              text-left
+              shadow-lg
+              ${
+                isDark
+                  ? "border-zinc-700 bg-zinc-900"
+                  : "border-zinc-200 bg-white"
+              }
+            `}
+          >
+            {searchResults.length > 0 ? (
+              <div className="max-h-80 overflow-y-auto p-2">
+                {searchResults.map((tool) => (
+                  <Link
+                    key={tool.href}
+                    href={tool.href}
+                    onClick={() => setSearch("")}
+                    className={`
+                      flex
+                      items-center
+                      gap-3
+                      rounded-xl
+                      px-3
+                      py-3
+                      transition
+                      ${
+                        isDark
+                          ? "hover:bg-zinc-800"
+                          : "hover:bg-zinc-100"
+                      }
+                    `}
+                  >
+                    {/* Tool Icon */}
+
+                    <div
+                      className={`
+                        flex
+                        h-10
+                        w-10
+                        shrink-0
+                        items-center
+                        justify-center
+                        rounded-xl
+                        text-lg
+                        ${
+                          isDark
+                            ? "bg-zinc-800"
+                            : "bg-zinc-100"
+                        }
+                      `}
+                    >
+                      {tool.icon}
+                    </div>
+
+                    {/* Tool Details */}
+
+                    <div className="min-w-0 flex-1">
+                      <div
+                        className={`
+                          text-sm
+                          font-semibold
+                          ${
+                            isDark
+                              ? "text-white"
+                              : "text-zinc-900"
+                          }
+                        `}
+                      >
+                        {tool.name}
+                      </div>
+
+                      <div
+                        className={`
+                          mt-1
+                          truncate
+                          text-xs
+                          ${
+                            isDark
+                              ? "text-zinc-400"
+                              : "text-zinc-500"
+                          }
+                        `}
+                      >
+                        {tool.description}
+                      </div>
+
+                      <div
+                        className={`
+                          mt-1
+                          text-xs
+                          ${
+                            isDark
+                              ? "text-zinc-500"
+                              : "text-zinc-400"
+                          }
+                        `}
+                      >
+                        {tool.category}
+                      </div>
+                    </div>
+
+                    {/* Arrow */}
+
+                    <span
+                      className={`
+                        shrink-0
+                        text-sm
+                        ${
+                          isDark
+                            ? "text-zinc-500"
+                            : "text-zinc-400"
+                        }
+                      `}
+                    >
+                      →
+                    </span>
+                  </Link>
+                ))}
+              </div>
+            ) : (
+              /* No Results */
+
+              <div
+                className={`
+                  px-4
+                  py-6
+                  text-center
+                  text-sm
+                  ${
+                    isDark
+                      ? "text-zinc-400"
+                      : "text-zinc-500"
+                  }
+                `}
+              >
+                No tools found for "{search}"
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Search Hint */}
 
         <p
           className={`
