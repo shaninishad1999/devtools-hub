@@ -70,6 +70,13 @@ const tools = [
     icon: "🆔",
     href: "/uuid-generator",
   },
+  {
+  name: "File to ZIP",
+  description:
+    "Combine multiple files into a single ZIP archive directly in your browser.",
+  icon: "📦",
+  href: "/file-to-zip",
+},
 ];
 
 export default function PopularTools({

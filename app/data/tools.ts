@@ -2,7 +2,8 @@ export const tools = [
   {
     id: 1,
     name: "JSON Formatter",
-    description: "Format, validate and organize JSON data quickly.",
+    description:
+      "Format, validate and organize JSON data quickly.",
     category: "JSON Tools",
     icon: "{}",
     href: "/json-formatter",
@@ -12,7 +13,8 @@ export const tools = [
   {
     id: 2,
     name: "JSON to CSV Converter",
-    description: "Convert JSON data into CSV format quickly and easily.",
+    description:
+      "Convert JSON data into CSV format quickly and easily.",
     category: "CSV Tools",
     icon: "📄",
     href: "/json-to-csv",
@@ -137,6 +139,25 @@ export const tools = [
       "decode",
       "decoding",
       "decoder",
+    ],
+  },
+
+  {
+    id: 10,
+    name: "File to ZIP",
+    description:
+      "Combine multiple files into a single ZIP archive directly in your browser.",
+    category: "File Tools",
+    icon: "📦",
+    href: "/file-to-zip",
+    keywords: [
+      "zip",
+      "file",
+      "files",
+      "archive",
+      "compress",
+      "download",
+      "file to zip",
     ],
   },
 ];
